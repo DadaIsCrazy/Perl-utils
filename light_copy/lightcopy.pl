@@ -2,19 +2,18 @@
 
 =head
 
-                        DESCRIPTION                         
-                                                             
-This script takes 2 directory names as paramters,           
-and copy the structure of the 1st one into the 1nd one.     
-Directories content and file names will be copy, but files 
-contents wont be.                                           
-                                                            
+                        DESCRIPTION
+
+This script takes 2 directory names as parameters,
+and copy the structure of the 1st into the 2nd.
+Directories' content and file names will be copied, but files'
+contents wont be. 
 
 =cut
 
 use strict; use warnings;
 use 5.14.0;
-use File::Path qw(make_path remove_tree);
+use File::Path qw(make_path);
 use File::Copy;
 $| = 1;
 
@@ -30,7 +29,7 @@ if ($ARGV[0] eq "--help") {
     usage();
 }
 
-# Checking for options
+# Checking the options
 if ($ARGV[0] eq "-nf") {
     $nofile = 1; shift @ARGV;
     if ($ARGV[0] && $ARGV[0] =~ /^-d(\d+)$/) {
@@ -43,7 +42,7 @@ if ($ARGV[0] eq "-nf") {
     }
 }
 
-# Checking for invalid options
+# Preventing invalid options
 foreach (@ARGV) {
     if (/^-/) {
         say "$0: invalid option '$_'";
@@ -51,7 +50,7 @@ foreach (@ARGV) {
     }
 }
 
-# Checking for arguments.
+# Checking the arguments.
 if ($#ARGV != 1) {
     say "$0: missing argument."; 
     usage("light");
@@ -59,13 +58,13 @@ if ($#ARGV != 1) {
 my ($from, $to) = @ARGV;
 
 unless (-d $from) {
-    say "$0: directory '$from' doesn't exist.";
+    say "$0: the directory '$from' doesn't exist.";
     exit 1;
 }
 
-# Checking if destination directory already exists.
+# Checking if the destination directory already exists.
 if (-d $to) {
-    print "Directory `$to` already exists. Do you wish to continue? [Y/n] ";
+    print "The directory `$to` already exists. Do you wish to continue? [Y/n] ";
     my $rep = <STDIN>;
     unless ($rep eq "\n" || $rep eq "y\n" || $rep eq "Y\n") {
         say "$0: aborting.";
@@ -76,7 +75,7 @@ if (-d $to) {
 }
 
 
-# Lauching main treatment
+# Lauching the main treatment
 print "Copy in progress... ";
 print "\n" if $verbose;
 copy_rec($from, $depth + 1);
@@ -97,8 +96,9 @@ sub copy_rec {
         foreach my $file (glob("$to_copy/*")) {
             copy_rec($file, $depth_loc - 1);
         }
-    } else {
+    } elsif (! $nofile) {
         open my $fp, ">$to/$to_copy";
+        close $fp;
     }
 }
 
